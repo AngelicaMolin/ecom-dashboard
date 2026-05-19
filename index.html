@@ -13,13 +13,20 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f1f5f9;color:#0f
 .header-meta{text-align:right;font-size:0.78rem;color:#94a3b8;line-height:1.6}
 .header-meta strong{color:#cbd5e1}
 .container{max-width:1440px;margin:0 auto;padding:24px 20px}
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:20px}
-.kpi{background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.08);border-top:3px solid transparent}
-.kpi.blue{border-top-color:#3b82f6}.kpi.green{border-top-color:#10b981}.kpi.amber{border-top-color:#f59e0b}.kpi.red{border-top-color:#ef4444}.kpi.purple{border-top-color:#7c3aed}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:16px;margin-bottom:20px}
+.kpi{background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.08);border-top:3px solid transparent;position:relative;overflow:hidden}
+.kpi.blue{border-top-color:#3b82f6}
+.kpi.green{border-top-color:#10b981}
+.kpi.amber{border-top-color:#f59e0b}
+.kpi.red{border-top-color:#ef4444}
+.kpi.purple{border-top-color:#7c3aed}
+.kpi.darkred{border-top-color:#991b1b;background:linear-gradient(135deg,#fff7f7 0%,#fff 60%)}
 .kpi-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:8px}
-.kpi-value{font-size:1.9rem;font-weight:800;color:#0f172a;line-height:1}
-.kpi-value.blue{color:#2563eb}.kpi-value.green{color:#059669}.kpi-value.amber{color:#d97706}.kpi-value.red{color:#dc2626}.kpi-value.purple{color:#6d28d9}
-.kpi-sub{font-size:.78rem;color:#94a3b8;margin-top:5px}
+.kpi-value{font-size:1.9rem;font-weight:800;line-height:1}
+.kpi-value.blue{color:#2563eb}.kpi-value.green{color:#059669}.kpi-value.amber{color:#d97706}
+.kpi-value.red{color:#dc2626}.kpi-value.purple{color:#6d28d9}.kpi-value.darkred{color:#991b1b}
+.kpi-sub{font-size:.76rem;color:#94a3b8;margin-top:5px;line-height:1.4}
+.kpi-icon{position:absolute;right:16px;top:16px;font-size:1.5rem;opacity:.15}
 .charts-row{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:16px}
 .card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .card h2{font-size:.9rem;font-weight:700;color:#374151;margin-bottom:14px}
@@ -32,11 +39,12 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f1f5f9;color:#0f
 .fbtn{padding:5px 12px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;font-size:.79rem;cursor:pointer;font-weight:600;color:#374151;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
 .fbtn:hover{border-color:#94a3b8}
 .fbtn.a-all{background:#1e293b;color:#fff;border-color:#1e293b}
+.fbtn.a-stockout{background:#991b1b;color:#fff;border-color:#991b1b}
 .fbtn.a-critical{background:#7c3aed;color:#fff;border-color:#7c3aed}
 .fbtn.a-high{background:#dc2626;color:#fff;border-color:#dc2626}
 .fbtn.a-medium{background:#d97706;color:#fff;border-color:#d97706}
 .fbtn.a-ok{background:#059669;color:#fff;border-color:#059669}
-.cnt{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;border-radius:9px;font-size:.69rem;font-weight:700;padding:0 4px;background:rgba(255,255,255,.25);color:inherit}
+.cnt{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;border-radius:9px;font-size:.69rem;font-weight:700;padding:0 4px;background:rgba(255,255,255,.25)}
 .fbtn:not([class*="a-"]) .cnt{background:#f1f5f9;color:#475569}
 .search-wrap{margin-left:auto}
 .search-wrap input{padding:5px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.8rem;width:200px;outline:none}
@@ -49,7 +57,10 @@ th.sorted{color:#2563eb}
 td{padding:8px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#fafafa}
-.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.71rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+tr.row-stockout td{background:#fff5f5}
+tr.row-stockout:hover td{background:#fee2e2}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.71rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.badge.stockout{background:#991b1b;color:#fff}
 .badge.critical{background:#ede9fe;color:#5b21b6}
 .badge.high{background:#fee2e2;color:#991b1b}
 .badge.medium{background:#fef3c7;color:#92400e}
@@ -62,7 +73,6 @@ tr:hover td{background:#fafafa}
 .item-no{font-size:.74rem;color:#94a3b8;margin-top:1px}
 .status-pill{display:inline-block;padding:1px 6px;border-radius:3px;font-size:.7rem;font-weight:600;background:#f1f5f9;color:#475569}
 .hist{font-size:.76rem;color:#64748b;white-space:nowrap}
-.hist span{margin:0 2px}
 .hist .y26{color:#0f172a;font-weight:700}
 @media(max-width:900px){.charts-row{grid-template-columns:1fr}}
 </style>
@@ -81,11 +91,42 @@ tr:hover td{background:#fafafa}
 </div>
 <div class="container">
   <div class="kpi-grid">
-    <div class="kpi blue"><div class="kpi-label">Br&ouml;ttoförsäljning YTD</div><div class="kpi-value blue" id="kpiSales">-</div><div class="kpi-sub" id="kpiSalesSub">-</div></div>
-    <div class="kpi blue"><div class="kpi-label">Budget YTD</div><div class="kpi-value" id="kpiBudget">-</div><div class="kpi-sub">M&aring;lv&auml;rde planperiod</div></div>
-    <div class="kpi" id="kpiPctCard"><div class="kpi-label">vs Budget</div><div class="kpi-value" id="kpiPct">-</div><div class="kpi-sub">Utfall av budget</div></div>
-    <div class="kpi purple"><div class="kpi-label">WH0 – Tomt lager</div><div class="kpi-value purple" id="kpiCritical">-</div><div class="kpi-sub">Produkter med sälj som behöver akut påfyllning</div></div>
-    <div class="kpi amber"><div class="kpi-label">Produkter i WH15</div><div class="kpi-value amber" id="kpiTotal">-</div><div class="kpi-sub" id="kpiTotalSub">-</div></div>
+    <div class="kpi blue">
+      <div class="kpi-icon">📈</div>
+      <div class="kpi-label">Br&ouml;ttoförsäljning YTD</div>
+      <div class="kpi-value blue" id="kpiSales">-</div>
+      <div class="kpi-sub" id="kpiSalesSub">-</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-icon">🎯</div>
+      <div class="kpi-label">Budget YTD</div>
+      <div class="kpi-value" id="kpiBudget">-</div>
+      <div class="kpi-sub">M&aring;lv&auml;rde planperiod</div>
+    </div>
+    <div class="kpi" id="kpiPctCard">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-label">vs Budget</div>
+      <div class="kpi-value" id="kpiPct">-</div>
+      <div class="kpi-sub">Utfall av budget</div>
+    </div>
+    <div class="kpi darkred" id="kpiStockoutCard">
+      <div class="kpi-icon">🚨</div>
+      <div class="kpi-label">STOCKOUT – WH0 + WH15 tomt</div>
+      <div class="kpi-value darkred" id="kpiStockout">-</div>
+      <div class="kpi-sub">Tomt p&aring; ecom &amp; inget att hämta</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-icon">⚠️</div>
+      <div class="kpi-label">CRITICAL – WH0 tomt</div>
+      <div class="kpi-value purple" id="kpiCritical">-</div>
+      <div class="kpi-sub">WH15 har lager att h&auml;mta</div>
+    </div>
+    <div class="kpi amber">
+      <div class="kpi-icon">📦</div>
+      <div class="kpi-label">Totalt i WH15-listan</div>
+      <div class="kpi-value amber" id="kpiTotal">-</div>
+      <div class="kpi-sub" id="kpiTotalSub">-</div>
+    </div>
   </div>
   <div class="charts-row">
     <div class="card"><h2>Budget vs Utfall &ndash; Br&ouml;ttoförsäljning (SEK) <small id="budgetPeriod"></small></h2><canvas id="budgetChart" height="190"></canvas></div>
@@ -93,14 +134,15 @@ tr:hover td{background:#fafafa}
   </div>
   <div class="trend-row"><div class="card"><h2>Historisk f&ouml;rs&auml;ljningstrend &ndash; antal s&aring;lda per m&aring;nad</h2><canvas id="trendChart" height="110"></canvas></div></div>
   <div class="table-section">
-    <h2>Lagerlist &ndash; Produkter med s&auml;ljhistorik &amp; lager i WH15</h2>
+    <h2>Lagerlista &ndash; Produkter med s&auml;ljhistorik &amp; lager i WH15</h2>
     <div class="filter-bar">
       <label>Visa:</label>
-      <button class="fbtn a-all" onclick="setFilter('all',this)">Alla <span class="cnt" id="cntAll"></span></button>
-      <button class="fbtn" onclick="setFilter('critical',this)">CRITICAL <span class="cnt" id="cntCritical"></span></button>
-      <button class="fbtn" onclick="setFilter('high',this)">HIGH <span class="cnt" id="cntHigh"></span></button>
-      <button class="fbtn" onclick="setFilter('medium',this)">MEDIUM <span class="cnt" id="cntMedium"></span></button>
-      <button class="fbtn" onclick="setFilter('ok',this)">OK <span class="cnt" id="cntOk"></span></button>
+      <button class="fbtn a-all"     onclick="setFilter('all',this)">Alla <span class="cnt" id="cntAll"></span></button>
+      <button class="fbtn"           onclick="setFilter('stockout',this)">STOCKOUT <span class="cnt" id="cntStockout"></span></button>
+      <button class="fbtn"           onclick="setFilter('critical',this)">CRITICAL <span class="cnt" id="cntCritical"></span></button>
+      <button class="fbtn"           onclick="setFilter('high',this)">HIGH <span class="cnt" id="cntHigh"></span></button>
+      <button class="fbtn"           onclick="setFilter('medium',this)">MEDIUM <span class="cnt" id="cntMedium"></span></button>
+      <button class="fbtn"           onclick="setFilter('ok',this)">OK <span class="cnt" id="cntOk"></span></button>
       <div class="search-wrap"><input type="text" id="srch" placeholder="S&ouml;k produkt, kategori..." oninput="renderTable()"></div>
     </div>
     <div class="tbl-wrap">
@@ -110,11 +152,12 @@ tr:hover td{background:#fafafa}
           <th onclick="sortBy('itemName',event)">Produkt</th>
           <th onclick="sortBy('category',event)">Kategori</th>
           <th onclick="sortBy('brand',event)">Varum&auml;rke</th>
-          <th onclick="sortBy('moh',event)" title="Months On Hand – m&aring;naders lager kvar i WH0">MoH</th>
-          <th onclick="sortBy('wh0Stock',event)" title="Tillg&auml;ngligt i ecom-lager WH0">WH0 Lager</th>
-          <th onclick="sortBy('wh15Stock',event)" title="Tillg&auml;ngligt i WH15 f&ouml;r &ouml;verf&ouml;ring">WH15 Lager</th>
+          <th onclick="sortBy('moh',event)" title="Months On Hand">MoH</th>
+          <th onclick="sortBy('wh0Stock',event)" title="Ecom-lager WH0">WH0</th>
+          <th onclick="sortBy('wh15Now',event)" title="WH15 nuläge (aktuellt saldo)">WH15 Nu</th>
+          <th onclick="sortBy('wh15Stock',event)" title="WH15 totalt planerat">WH15 Plan</th>
           <th onclick="sortBy('soldLM',event)">S&aring;lt f&ouml;reg m&aring;n</th>
-          <th onclick="sortBy('sold26',event)" title="Säljhistorik per år (antal)">Historik 24/25/26</th>
+          <th onclick="sortBy('sold26',event)" title="Historik per år">Historik 24/25/26</th>
           <th onclick="sortBy('status',event)">Status</th>
         </tr></thead>
         <tbody id="repTable"></tbody>
@@ -125,14 +168,14 @@ tr:hover td{background:#fafafa}
 </div>
 <script>
 let allItems=[],activeFilter='all',sortCol='urgency',sortDir=1;
-const urgOrd={critical:0,high:1,medium:2,ok:3};
+const urgOrd={stockout:0,critical:1,high:2,medium:3,ok:4};
 function fmtSEK(v){if(v>=1e6)return(v/1e6).toFixed(1)+' MSEK';if(v>=1e3)return Math.round(v/1e3)+' kSEK';return v+' SEK';}
 function fmtDate(iso){const d=new Date(iso);return d.toLocaleDateString('sv-SE',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
 function mohColor(m){if(m===0)return'#ef4444';if(m<1)return'#f97316';if(m<2)return'#f59e0b';if(m<3)return'#84cc16';return'#10b981';}
 function mohPct(m){return Math.min(100,Math.round((m/6)*100));}
 function setFilter(f,btn){
   activeFilter=f;
-  document.querySelectorAll('.fbtn').forEach(b=>{b.className='fbtn';});
+  document.querySelectorAll('.fbtn').forEach(b=>b.className='fbtn');
   btn.className='fbtn a-'+f;
   renderTable();
 }
@@ -162,14 +205,17 @@ function renderTable(){
   tbody.innerHTML=items.map(i=>{
     const mp=mohPct(i.moh),mc=mohColor(i.moh);
     const slmTxt=i.soldLM>0?i.soldLM:i.soldLM<0?'<span style="color:#94a3b8">retur</span>':'-';
-    const hist=`<div class="hist"><span>${i.sold24||0}</span><span style="color:#cbd5e1">/</span><span>${i.sold25||0}</span><span style="color:#cbd5e1">/</span><span class="y26">${i.sold26||0}</span></div>`;
-    return`<tr>
+    const hist=`<span class="hist">${i.sold24||0} / ${i.sold25||0} / <span class="y26">${i.sold26||0}</span></span>`;
+    const wh15nowTxt=i.wh15Now>0?i.wh15Now:`<span style="color:#dc2626;font-weight:700">0</span>`;
+    const rowCls=i.urgency==='stockout'?' class="row-stockout"':'';
+    return`<tr${rowCls}>
       <td><span class="badge ${i.urgency}">${i.urgency.toUpperCase()}</span></td>
       <td><div class="item-name">${i.itemName}</div><div class="item-no">${i.itemNo}</div></td>
       <td>${i.category}</td>
       <td>${i.brand}</td>
       <td><div class="moh-cell"><span class="moh-n">${i.moh}</span><div class="moh-bar"><div class="moh-fill" style="width:${mp}%;background:${mc}"></div></div></div></td>
       <td><strong>${i.wh0Stock}</strong></td>
+      <td>${wh15nowTxt}</td>
       <td>${i.wh15Stock}</td>
       <td>${slmTxt}</td>
       <td>${hist}</td>
@@ -195,10 +241,12 @@ async function init(){
   else if(pct>=80){kpiPct.className='kpi-value amber';card.className='kpi amber';}
   else{kpiPct.className='kpi-value red';card.className='kpi red';}
   const ss=data.stockSummary;
+  document.getElementById('kpiStockout').textContent=ss.stockout||0;
   document.getElementById('kpiCritical').textContent=ss.critical;
   document.getElementById('kpiTotal').textContent=ss.needsReplenishment;
-  document.getElementById('kpiTotalSub').textContent=ss.critical+' CRITICAL · '+ss.high+' HIGH · '+ss.medium+' MEDIUM · '+ss.ok+' OK';
+  document.getElementById('kpiTotalSub').textContent=(ss.stockout||0)+' STOCKOUT · '+ss.critical+' CRITICAL · '+ss.high+' HIGH · '+ss.medium+' MEDIUM · '+(ss.ok||0)+' OK';
   document.getElementById('cntAll').textContent=ss.needsReplenishment;
+  document.getElementById('cntStockout').textContent=ss.stockout||0;
   document.getElementById('cntCritical').textContent=ss.critical;
   document.getElementById('cntHigh').textContent=ss.high;
   document.getElementById('cntMedium').textContent=ss.medium;
