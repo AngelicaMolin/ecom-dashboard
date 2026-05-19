@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D2C Dashboard – Silva Sweden</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh}
+.header{background:#1e293b;color:#fff;padding:18px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.header h1{font-size:1.3rem;font-weight:700;letter-spacing:-0.02em}
+.header-meta{text-align:right;font-size:0.78rem;color:#94a3b8;line-height:1.6}
+.header-meta strong{color:#cbd5e1}
+.container{max-width:1380px;margin:0 auto;padding:24px 20px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+.kpi{background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.08);border-top:3px solid transparent}
+.kpi.blue{border-top-color:#3b82f6}.kpi.green{border-top-color:#10b981}.kpi.amber{border-top-color:#f59e0b}.kpi.red{border-top-color:#ef4444}
+.kpi-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:8px}
+.kpi-value{font-size:1.9rem;font-weight:800;color:#0f172a;line-height:1}
+.kpi-value.blue{color:#2563eb}.kpi-value.green{color:#059669}.kpi-value.amber{color:#d97706}.kpi-value.red{color:#dc2626}
+.kpi-sub{font-size:.78rem;color:#94a3b8;margin-top:5px}
+.charts-row{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:16px}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card h2{font-size:.9rem;font-weight:700;color:#374151;margin-bottom:14px}
+.card h2 small{font-size:.75rem;font-weight:500;color:#94a3b8;margin-left:6px}
+.trend-row{margin-bottom:16px}
+.table-section{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.table-section h2{font-size:.9rem;font-weight:700;color:#374151;margin-bottom:14px}
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filter-bar label{font-size:.78rem;color:#64748b;font-weight:600;margin-right:2px}
+.fbtn{padding:5px 14px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;font-size:.8rem;cursor:pointer;font-weight:600;color:#374151;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.fbtn:hover{border-color:#94a3b8}
+.fbtn.active-all{background:#1e293b;color:#fff;border-color:#1e293b}
+.fbtn.active-high{background:#dc2626;color:#fff;border-color:#dc2626}
+.fbtn.active-medium{background:#d97706;color:#fff;border-color:#d97706}
+.cnt{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:9px;font-size:.7rem;font-weight:700;padding:0 4px;background:rgba(255,255,255,.25)}
+.search-wrap{margin-left:auto}
+.search-wrap input{padding:5px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.8rem;width:180px;outline:none}
+.search-wrap input:focus{border-color:#3b82f6}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+th{text-align:left;padding:9px 10px;background:#f8fafc;font-weight:700;font-size:.71rem;text-transform:uppercase;letter-spacing:.05em;color:#64748b;border-bottom:2px solid #e2e8f0;cursor:pointer;white-space:nowrap;user-select:none}
+th:hover{color:#0f172a;background:#f1f5f9}
+th.sorted{color:#2563eb}
+td{padding:9px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.badge{display:inline-block;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.badge.high{background:#fee2e2;color:#991b1b}
+.badge.medium{background:#fef3c7;color:#92400e}
+.badge.critical{background:#7c3aed;color:#fff}
+.moh-cell{display:flex;align-items:center;gap:7px;min-width:100px}
+.moh-n{font-weight:700;min-width:28px;font-size:.82rem}
+.moh-bar{flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+.moh-fill{height:100%;border-radius:3px}
+.item-name{font-weight:600;color:#1e293b}
+.item-no{font-size:.75rem;color:#94a3b8;margin-top:1px}
+.status-pill{display:inline-block;padding:1px 7px;border-radius:3px;font-size:.7rem;font-weight:600;background:#f1f5f9;color:#475569}
+@media(max-width:900px){.charts-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>D2C Ecommerce Dashboard</h1>
+    <div style="font-size:.78rem;color:#64748b;margin-top:2px">Silva Sweden &amp; Primus &ndash; EU-marknad</div>
+  </div>
+  <div class="header-meta">
+    <div>Fil: <strong id="hdrFile">laddar...</strong></div>
+    <div>Uppdaterad: <strong id="hdrUpdated">laddar...</strong></div>
+    <div>Period: <strong id="hdrPeriod">laddar...</strong></div>
+  </div>
+</div>
+<div class="container">
+  <div class="kpi-grid">
+    <div class="kpi blue"><div class="kpi-label">Br&ouml;ttof&ouml;rs&auml;ljning YTD</div><div class="kpi-value blue" id="kpiSales">-</div><div class="kpi-sub" id="kpiSalesSub">-</div></div>
+    <div class="kpi blue"><div class="kpi-label">Budget YTD</div><div class="kpi-value" id="kpiBudget">-</div><div class="kpi-sub">M&aring;lv&auml;rde planperiod</div></div>
+    <div class="kpi" id="kpiPctCard"><div class="kpi-label">vs Budget</div><div class="kpi-value" id="kpiPct">-</div><div class="kpi-sub">Utfall av budget</div></div>
+    <div class="kpi amber"><div class="kpi-label">Beh&ouml;ver p&aring;fyllning</div><div class="kpi-value amber" id="kpiReplenish">-</div><div class="kpi-sub" id="kpiReplenishSub">-</div></div>
+  </div>
+  <div class="charts-row">
+    <div class="card"><h2>Budget vs Utfall &ndash; Br&ouml;ttof&ouml;rs&auml;ljning (SEK) <small id="budgetPeriod"></small></h2><canvas id="budgetChart" height="190"></canvas></div>
+    <div class="card"><h2>F&ouml;rs&auml;ljning per kategori 2026 YTD <small>(antal)</small></h2><canvas id="catChart" height="190"></canvas></div>
+  </div>
+  <div class="trend-row"><div class="card"><h2>Historisk f&ouml;rs&auml;ljningstrend &ndash; antal s&aring;lda per m&aring;nad</h2><canvas id="trendChart" height="110"></canvas></div></div>
+  <div class="table-section">
+    <h2>P&aring;fyllningslista &ndash; Produkter att &ouml;verf&ouml;ra till ecom-lager (WH0)</h2>
+    <div class="filter-bar">
+      <label>Visa:</label>
+      <button class="fbtn active-all" onclick="setFilter('all',this)">Alla <span class="cnt" id="cntAll"></span></button>
+      <button class="fbtn" onclick="setFilter('high',this)">HIGH <span class="cnt" id="cntHigh"></span></button>
+      <button class="fbtn" onclick="setFilter('medium',this)">MEDIUM <span class="cnt" id="cntMedium"></span></button>
+      <div class="search-wrap"><input type="text" id="srch" placeholder="S&ouml;k produkt, kategori..." oninput="renderTable()"></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th onclick="sortBy('urgency',event)">Prio</th>
+          <th onclick="sortBy('itemName',event)">Produkt</th>
+          <th onclick="sortBy('category',event)">Kategori</th>
+          <th onclick="sortBy('brand',event)">Varum&auml;rke</th>
+          <th onclick="sortBy('moh',event)" title="Months On Hand – m&aring;naders lager kvar i WH0">MoH</th>
+          <th onclick="sortBy('wh0Stock',event)" title="Tillg&auml;ngligt i ecom-lager WH0">WH0 Lager</th>
+          <th onclick="sortBy('wh15Stock',event)" title="Tillg&auml;ngligt i WH15 f&ouml;r &ouml;verf&ouml;ring">WH15 Lager</th>
+          <th onclick="sortBy('soldLM',event)">S&aring;lt f&ouml;reg m&aring;n</th>
+          <th onclick="sortBy('status',event)">Status</th>
+        </tr></thead>
+        <tbody id="repTable"></tbody>
+      </table>
+    </div>
+    <div id="tblFoot" style="font-size:.78rem;color:#94a3b8;margin-top:10px;text-align:right"></div>
+  </div>
+</div>
+<script>
+let allItems=[],activeFilter='all',sortCol='urgency',sortDir=1;
+const urgOrd={critical:0,high:1,medium:2};
+function fmtSEK(v){if(v>=1e6)return(v/1e6).toFixed(1)+' MSEK';if(v>=1e3)return Math.round(v/1e3)+' kSEK';return v+' SEK';}
+function fmtDate(iso){const d=new Date(iso);return d.toLocaleDateString('sv-SE',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+function mohColor(m){if(m===0)return'#ef4444';if(m<1)return'#f97316';if(m<2)return'#f59e0b';if(m<3)return'#84cc16';return'#10b981';}
+function mohPct(m){return Math.min(100,Math.round((m/6)*100));}
+function setFilter(f,btn){activeFilter=f;document.querySelectorAll('.fbtn').forEach(b=>{b.className='fbtn';});btn.className='fbtn active-'+f;renderTable();}
+function sortBy(col,e){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}document.querySelectorAll('th').forEach(t=>t.classList.remove('sorted'));e.target.classList.add('sorted');renderTable();}
+function renderTable(){
+  const q=document.getElementById('srch').value.toLowerCase();
+  let items=allItems;
+  if(activeFilter!=='all')items=items.filter(i=>i.urgency===activeFilter);
+  if(q)items=items.filter(i=>i.itemName.toLowerCase().includes(q)||i.itemNo.toLowerCase().includes(q)||i.category.toLowerCase().includes(q)||i.brand.toLowerCase().includes(q));
+  items=[...items].sort((a,b)=>{let av=a[sortCol],bv=b[sortCol];if(sortCol==='urgency'){av=urgOrd[a.urgency];bv=urgOrd[b.urgency];}if(typeof av==='string')return av.localeCompare(bv)*sortDir;return(av-bv)*sortDir;});
+  const tbody=document.getElementById('repTable');
+  tbody.innerHTML=items.map(i=>{const mp=mohPct(i.moh),mc=mohColor(i.moh);return`<tr><td><span class="badge ${i.urgency}">${i.urgency.toUpperCase()}</span></td><td><div class="item-name">${i.itemName}</div><div class="item-no">${i.itemNo}</div></td><td>${i.category}</td><td>${i.brand}</td><td><div class="moh-cell"><span class="moh-n">${i.moh}</span><div class="moh-bar"><div class="moh-fill" style="width:${mp}%;background:${mc}"></div></div></div></td><td><strong>${i.wh0Stock}</strong></td><td>${i.wh15Stock}</td><td>${i.soldLM>0?i.soldLM:i.soldLM<0?'<span style="color:#94a3b8">retur</span>':'-'}</td><td><span class="status-pill">${i.status}</span></td></tr>`;}).join('');
+  document.getElementById('tblFoot').textContent=items.length+' produkter visas';
+}
+async function init(){
+  let data;
+  try{const r=await fetch('data.json?t='+Date.now());data=await r.json();}catch(e){document.querySelector('.container').innerHTML='<div style="padding:60px;text-align:center;color:#64748b">Kunde inte ladda data.json.</div>';return;}
+  document.getElementById('hdrFile').textContent=data.fileName;
+  document.getElementById('hdrUpdated').textContent=fmtDate(data.lastUpdated);
+  document.getElementById('hdrPeriod').textContent=data.period;
+  const s=data.summary;
+  document.getElementById('kpiSales').textContent=fmtSEK(s.ytdGrossSales);
+  document.getElementById('kpiSalesSub').textContent='av '+fmtSEK(s.ytdBudget)+' budget';
+  document.getElementById('kpiBudget').textContent=fmtSEK(s.ytdBudget);
+  const pct=s.budgetPct,kpiPct=document.getElementById('kpiPct'),card=document.getElementById('kpiPctCard');
+  kpiPct.textContent=pct+'%';
+  if(pct>=100){kpiPct.className='kpi-value green';card.className='kpi green';}else if(pct>=80){kpiPct.className='kpi-value amber';card.className='kpi amber';}else{kpiPct.className='kpi-value red';card.className='kpi red';}
+  const ss=data.stockSummary;
+  document.getElementById('kpiReplenish').textContent=ss.needsReplenishment;
+  document.getElementById('kpiReplenishSub').textContent=ss.high+' HIGH · '+ss.medium+' MEDIUM';
+  document.getElementById('cntAll').textContent=ss.needsReplenishment;
+  document.getElementById('cntHigh').textContent=ss.high;
+  document.getElementById('cntMedium').textContent=ss.medium;
+  document.getElementById('budgetPeriod').textContent=data.period;
+  new Chart(document.getElementById('budgetChart'),{type:'bar',data:{labels:s.months,datasets:[{label:'Budget',data:s.budget,backgroundColor:'rgba(59,130,246,.18)',borderColor:'rgba(59,130,246,.7)',borderWidth:1.5,borderRadius:4},{label:'Utfall',data:s.grossSales,backgroundColor:'rgba(16,185,129,.75)',borderColor:'rgba(16,185,129,1)',borderWidth:1,borderRadius:4}]},options:{responsive:true,plugins:{legend:{position:'top'},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmtSEK(ctx.raw)}}},scales:{y:{ticks:{callback:v=>fmtSEK(v)},grid:{color:'rgba(0,0,0,.05)'}},x:{grid:{display:false}}}}});
+  const cats=data.categories.filter(c=>c.y2026>0),colors=['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316'];
+  new Chart(document.getElementById('catChart'),{type:'doughnut',data:{labels:cats.map(c=>c.name),datasets:[{data:cats.map(c=>c.y2026),backgroundColor:colors,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:11}}},tooltip:{callbacks:{label:ctx=>{const tot=cats.reduce((a,c)=>a+c.y2026,0);return ctx.label+': '+ctx.raw+' st ('+Math.round(ctx.parsed/tot*100)+'%)';}}}}}});
+  const h=data.historicalQty;
+  new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:h.months,datasets:[{label:'2024',data:h.y2024,borderColor:'#cbd5e1',borderDash:[5,4],pointRadius:3,fill:false,tension:.4},{label:'2025',data:h.y2025,borderColor:'#3b82f6',borderWidth:2,pointRadius:3,fill:false,tension:.4},{label:'2026',data:h.y2026,borderColor:'#10b981',borderWidth:3,pointRadius:4,fill:false,tension:.4}]},options:{responsive:true,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'Antal sålda (st)'},grid:{color:'rgba(0,0,0,.05)'}},x:{grid:{display:false}}}}});
+  allItems=data.replenishment;
+  renderTable();
+}
+init();
+</script>
+</body>
+</html>
